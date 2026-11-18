@@ -17,7 +17,7 @@ if st.button("analyze sentiment"):
     else:
         with st.spinner("analyzing.."):
             #call your flask backend
-            response=requests.post("http://127.0.0.1:5000/predict",
+            response=requests.post("https://sentiment-ana-gztb.onrender.com/predict",
                                    json={"reviews":review})
             result=response.json()
         #display result
