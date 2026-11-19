@@ -1,4 +1,3 @@
-
 import nltk
 import re
 
@@ -26,7 +25,7 @@ def process_review(review):
     review_tokens = word_tokenize(review_pun_num)
 
     # remove stop words
-    stop_words = stopwords.words('english')
+    stop_words =(stopwords.words('english'))
     review_tokens_stopwords = [
         token for token in review_tokens
         if token not in stop_words
