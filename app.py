@@ -2,32 +2,45 @@
 import joblib
 import numpy as np
 from preprocess import process_review
-from flask import Flask,request, jsonify
+from flask import Flask, request, jsonify
 
-app=Flask(__name__)
+app = Flask(__name__)
 
-model=joblib.load('model.joblib') # loading the saved model
-vectorizer=joblib.load('vectorizer.joblib') # loading the saved TF-IDF vectorizer
+# Loading saved model and vectorizer
+model = joblib.load('model.joblib')
+vectorizer = joblib.load('vectorizer.joblib')
 
-@app.route("/predict",methods=["POST"]) # whenever user posts data to predict call this func
+
+@app.route("/predict", methods=["POST"])
 def predict():
-    data=request.get_json() #read the incoming json data
+    try:
+        data = request.get_json()
 
-    review=data['reviews'] # extract the review from dict
+        review = data['reviews']
 
-    process_rev=process_review(review) # preprocess the review posted
+        process_rev = process_review(review)
 
-    process_rev=vectorizer.transform([process_rev]) #extract features from the review
+        process_rev = vectorizer.transform([process_rev])
 
-    prediction =model.predict(process_rev)# predict the sentiment
+        prediction = model.predict(process_rev)
 
-    return jsonify({"prediction":"positive" if prediction[0] == "1" else "negative"}) #output the sentiment.jsonify is used to convert python dict to json obj
-@app.route("/health",methods=['GET']) #used to check if the server is running it ll output {"status";"ok} if server is running
+        sentiment = "positive" if str(prediction[0]) == "1" else "negative"
 
+        return jsonify({"prediction": sentiment})
+
+    except Exception as e:
+        print("Prediction Error:", str(e))
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/health", methods=['GET'])
 def health():
-    return josonify({"status":"ok"})
+    return jsonify({"status": "ok"})
+
 
 if __name__ == "__main__":
-    #app.run(debug=true,host=0.0.0.",port=50000)host:0.0.0.0 means any compu can connect to this host
     import os
-    app.run(host="127.0.0.1",port=int(os.environ.get("PORT",5000)))
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000))
+    )
